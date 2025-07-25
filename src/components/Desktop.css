@@ -1,0 +1,77 @@
+.desktop {
+  width: 100vw;
+  height: 100vh;
+  /* Dark gradient background */
+  background: linear-gradient(
+    135deg,
+    #4c1d95 0%,
+    #1e3a8a 50%,
+    #0f766e 100%
+  );
+  position: relative;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+}
+
+.desktop-icons {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 70px);
+  z-index: 1;
+}
+
+/* Modern gradient background with subtle animation */
+.desktop::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: none;
+  animation: none;
+  z-index: 0;
+}
+
+.desktop::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.02) 50%, transparent 70%),
+    linear-gradient(-45deg, transparent 30%, rgba(255, 255, 255, 0.01) 50%, transparent 70%);
+  z-index: 0;
+}
+
+@keyframes gradientFlow {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  33% {
+    opacity: 0.8;
+    transform: scale(1.05) rotate(1deg);
+  }
+  66% {
+    opacity: 0.9;
+    transform: scale(0.98) rotate(-1deg);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .desktop-icons {
+    height: calc(100% - 80px);
+  }
+}
+
+@media (max-width: 480px) {
+  .desktop {
+    font-size: 14px;
+  }
+}

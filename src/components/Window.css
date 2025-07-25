@@ -1,0 +1,313 @@
+.window {
+  position: absolute;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0.15) 30%,
+    rgba(255, 255, 255, 0.1) 70%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  backdrop-filter: blur(15px) saturate(120%);
+  -webkit-backdrop-filter: blur(15px) saturate(120%);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 4px 16px rgba(0, 0, 0, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 1px 0 0 rgba(255, 255, 255, 0.3),
+    inset -1px 0 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+  animation: windowOpen 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.window::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.03) 50%,
+    rgba(255, 255, 255, 0.05) 75%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+.window.maximized {
+  border-radius: 0;
+  border: none;
+}
+
+.window-titlebar {
+  height: 32px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0.2) 100%
+  );
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px 0 16px;
+  cursor: grab;
+  user-select: none;
+  position: relative;
+  z-index: 1;
+}
+
+.window-titlebar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.8) 20%,
+    rgba(255, 255, 255, 0.8) 80%,
+    transparent 100%
+  );
+}
+
+.window-titlebar:active {
+  cursor: grabbing;
+}
+
+.window-title {
+  font-weight: 400;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.8);
+  flex: 1;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  letter-spacing: 0.2px;
+}
+
+.window-controls {
+  display: flex;
+  gap: 6px;
+  position: relative;
+  z-index: 2;
+  cursor: default;
+}
+
+.window-control {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  max-width: 16px;
+  max-height: 16px;
+  border-radius: 50% !important;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  aspect-ratio: 1 / 1;
+  padding: 0 !important;
+  margin: 0;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.window-control::before {
+  content: "";
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  right: 1px;
+  bottom: 1px;
+  border-radius: 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(0, 0, 0, 0.05) 100%
+  );
+  pointer-events: none;
+}
+
+.window-control.minimize {
+  background: linear-gradient(180deg, #ffdd44 0%, #ffbb00 50%, #ff9900 100%);
+  color: rgba(0, 0, 0, 0.7);
+  border-color: rgba(204, 136, 0, 0.6);
+}
+
+.window-control.maximize {
+  background: linear-gradient(180deg, #44dd44 0%, #22bb22 50%, #009900 100%);
+  color: rgba(0, 0, 0, 0.7);
+  border-color: rgba(0, 136, 0, 0.6);
+}
+
+.window-control.close {
+  background: linear-gradient(180deg, #ff6666 0%, #ff3333 50%, #cc0000 100%);
+  color: rgba(0, 0, 0, 0.7);
+  border-color: rgba(136, 0, 0, 0.6);
+}
+
+.window-control:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.window-control:active {
+  transform: scale(0.95);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.window-control.minimize:hover {
+  background: linear-gradient(180deg, #ffee55 0%, #ffcc11 50%, #ffaa00 100%);
+}
+
+.window-control.maximize:hover {
+  background: linear-gradient(180deg, #55ee55 0%, #33cc33 50%, #11aa11 100%);
+}
+
+.window-control.close:hover {
+  background: linear-gradient(180deg, #ff7777 0%, #ff4444 50%, #dd1111 100%);
+}
+
+.window-content {
+  height: calc(100% - 32px);
+  overflow: auto;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.3) 100%
+  );
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  position: relative;
+}
+
+.window-content::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  pointer-events: none;
+}
+
+/* Resize handles */
+.resize-handle {
+  position: absolute;
+  background: transparent;
+  transition: background 0.3s ease;
+}
+
+.resize-handle:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.resize-right {
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 100%;
+  cursor: ew-resize;
+}
+
+.resize-bottom {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  cursor: ns-resize;
+}
+
+.resize-corner {
+  bottom: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nw-resize;
+  border-radius: 0 0 8px 0;
+}
+
+/* Window animations */
+@keyframes windowOpen {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    backdrop-filter: blur(20px);
+  }
+}
+
+/* Focus state */
+.window:focus-within {
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    inset 1px 0 0 rgba(255, 255, 255, 0.4),
+    inset -1px 0 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Aero-style scrollbar */
+.window-content::-webkit-scrollbar {
+  width: 12px;
+}
+
+.window-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.window-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    rgba(200, 200, 200, 0.8) 0%,
+    rgba(150, 150, 150, 0.8) 50%,
+    rgba(100, 100, 100, 0.8) 100%
+  );
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transition: background 0.3s ease;
+}
+
+.window-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(180, 180, 180, 0.9) 0%,
+    rgba(130, 130, 130, 0.9) 50%,
+    rgba(80, 80, 80, 0.9) 100%
+  );
+}
