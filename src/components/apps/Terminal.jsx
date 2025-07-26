@@ -20,19 +20,25 @@ const Terminal = () => {
       'home': {
         'rndastech': {
           'Documents': {
-            'resume.pdf': 'file',
-            'projects': {
-              'portfolio': {
-                'index.html': 'file',
-                'style.css': 'file'
+            'hints': {
+              'egg1': {
+                'hint.txt': 'file'
               },
-              'react-app': {
-                'package.json': 'file',
-                'src': {
-                  'App.js': 'file'
-                }
+              'egg2': {
+                'hint.json': 'file'
+              },
+              'egg3': {
+                'hint.csv': 'file'
               }
             }
+          },
+          'Apps':{
+            'About Me': 'file',
+            'Contact': 'file',
+            'Projects': 'file',
+            'Resume': 'file',
+            'Skills': 'file',
+            'Terminal': 'file'
           }
         }
       },
@@ -60,23 +66,15 @@ const Terminal = () => {
     const user = 'rndastech'
     const hostname = 'portfolio'
     const path = currentPathRef.current
+    
     return `\x1b[32m${user}@${hostname}\x1b[0m:\x1b[34m${path}\x1b[0m$ `
   }
 
   const parsePath = (path) => {
-    if (path === '~') return '/home/rndastech'
-    if (path.startsWith('~/')) return '/home/rndastech' + path.slice(1)
     if (path.startsWith('/')) return path
     
     // Convert current path to absolute format for processing
-    let currentAbsolutePath
-    if (currentPathRef.current === '~') {
-      currentAbsolutePath = '/home/rndastech'
-    } else if (currentPathRef.current.startsWith('~/')) {
-      currentAbsolutePath = '/home/rndastech' + currentPathRef.current.slice(1)
-    } else {
-      currentAbsolutePath = currentPathRef.current
-    }
+    let currentAbsolutePath = currentPathRef.current
     
     // Handle special cases
     if (path === '.') return currentAbsolutePath
@@ -86,7 +84,9 @@ const Terminal = () => {
       return '/' + parts.slice(0, -1).join('/')
     }
     
-    return currentAbsolutePath + '/' + path
+    // Properly join paths without double slashes
+    const cleanCurrentPath = currentAbsolutePath.endsWith('/') ? currentAbsolutePath.slice(0, -1) : currentAbsolutePath
+    return cleanCurrentPath + '/' + path
   }
 
   const getDirectoryContents = (path) => {
@@ -133,19 +133,13 @@ const Terminal = () => {
         if (dir === null || typeof dir !== 'object') {
           return `cd: ${args[0]}: No such file or directory`
         }
+        
         setCurrentPath(newPath)
         return ''
       }
 
       case 'pwd': {
-        const cp = currentPathRef.current
-        if (cp === '~') {
-          return '/home/rndastech'
-        } else if (cp.startsWith('~/')) {
-          return '/home/rndastech' + cp.slice(1)
-        } else {
-          return cp
-        }
+        return currentPathRef.current
       }
 
       case 'whoami':
@@ -166,38 +160,39 @@ const Terminal = () => {
         if (typeof file === 'object') {
           return `cat: ${args[0]}: Is a directory`
         }
-        
-        // Return simulated file contents
-        const fileName = args[0].split('/').pop()
-        switch (fileName) {
-          case 'resume.pdf':
-            return 'Download file by clicking on Resume icon on the desktop'
-          case 'package.json':
-            return '{\n  "name": "react-app",\n  "version": "1.0.0",\n  "dependencies": {\n    "react": "^18.0.0"\n  }\n}'
-          default:
-            return `Access Denied`
-        }
+          return `Access Denied`
       }
 
       case 'clear':
         xtermRef.current?.clear()
         return null
 
-      case 'help':
-        return `Publicly available commands:
-ls [path]     - List directory contents
-cd [path]     - Change directory
-pwd           - Print working directory
-cat [file]    - Display file contents
-whoami        - Display current user
-date          - Display current date
-clear         - Clear terminal
-help          - Show this help message
-echo [text]   - Display text
-uname         - System information`
+      case 'help': {
+        const helpLines = [
+          'Publicly available commands:',
+          '  ls [path]               - List directory contents',
+          '  cd [path]               - Change directory',
+          '  pwd                     - Print working directory',
+          '  cat [file]              - Display file contents',
+          '  whoami                  - Display current user',
+          '  date                    - Display current date',
+          '  clear                   - Clear terminal',
+          '  help                    - Show this help message',
+          '  echo [text]             - Display text',
+          '  uname                   - System information'
+        ]
+        return helpLines.join('\n')
+      }
 
-      case 'echo':
-        return args.join(' ')
+      case 'echo': {
+        const easterEggTrigger = import.meta.env.VITE_EASTER_EGG_TRIGGER
+        const fullArgs = args.join(' ')
+        if (fullArgs === easterEggTrigger) {
+          return 'Congratulations! First Easter Egg Unlocked. Visit: http://riteshndas.me/Snake for a game.'
+        } else {
+          return fullArgs
+        }
+      }
 
       case 'uname':
         return 'Ritesh Portfolio OS 1.0.0'
@@ -206,7 +201,8 @@ uname         - System information`
         return null
 
       default:
-        return `${command}: command not found`
+        const errorcode = import.meta.env.VITE_ERROR_CODE
+        return `${command}: command not found. Error code: ${errorcode}`
     }
   }
 
@@ -240,11 +236,15 @@ uname         - System information`
       fontSize: 14,
       fontWeight: 'normal',
       fontWeightBold: 'bold',
-      lineHeight: 1.2,
+      lineHeight: 1.0,
       cursorBlink: true,
       cursorStyle: 'block',
       scrollback: 1000,
-      tabStopWidth: 4
+      tabStopWidth: 4,
+      cols: 80,
+      rows: 24,
+      convertEol: false,
+      allowTransparency: false
     })
 
     // Add addons
@@ -256,7 +256,11 @@ uname         - System information`
     
     // Open terminal
     terminal.open(terminalRef.current)
-    fitAddon.fit()
+    
+    // Fit after a short delay to ensure container is ready
+    setTimeout(() => {
+      fitAddon.fit()
+    }, 50)
 
     // Store references
     xtermRef.current = terminal
@@ -266,7 +270,7 @@ uname         - System information`
     terminal.writeln('\x1b[33m╭─────────────────────────────────────────╮')
     terminal.writeln('│     Welcome to Portfolio Terminal       │')
     terminal.writeln('│        Type "help" for commands         │')
-    terminal.writeln('│  Try to find all 3 hidden easter eggs   │')
+    terminal.writeln('│ Try to find all 3 hidden "easter eggs"  │')
     terminal.writeln('╰─────────────────────────────────────────╯\x1b[0m')
     terminal.writeln('')
     terminal.write(getPrompt())
@@ -285,7 +289,11 @@ uname         - System information`
           setCommandHistory(newHistory)
           const output = executeCommand(currentLine)
           if (output !== null && output !== '') {
-            terminal.writeln(output)
+            // Split output into lines and write each line separately
+            const lines = output.split('\n')
+            lines.forEach(line => {
+              terminal.writeln(line)
+            })
           }
         }
         
@@ -362,7 +370,7 @@ uname         - System information`
 
   useEffect(() => {
     // Fit terminal when component mounts or updates
-    if (fitAddonRef.current) {
+    if (fitAddonRef.current && xtermRef.current) {
       setTimeout(() => {
         fitAddonRef.current.fit()
       }, 100)
