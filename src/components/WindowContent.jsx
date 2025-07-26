@@ -3,7 +3,6 @@ import Projects from './apps/Projects'
 import Skills from './apps/Skills'
 import Contact from './apps/Contact'
 import Resume from './apps/Resume'
-import Experience from './apps/Experience'
 import Terminal from './apps/Terminal'
 
 const WindowContent = ({ appId }) => {
@@ -18,8 +17,6 @@ const WindowContent = ({ appId }) => {
       return <Contact />
     case 'resume':
       return <Resume />
-    case 'experience':
-      return <Experience />
     case 'terminal':
       return <Terminal />
     default:

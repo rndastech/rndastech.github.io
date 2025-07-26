@@ -18,8 +18,7 @@ const Desktop = () => {
     { id: "skills", name: "Skills", icon: "⚡", x: 60, y: 300 },
     { id: "contact", name: "Contact", icon: "📧", x: 60, y: 420 },
     { id: "resume", name: "Resume", icon: "📋", x: 180, y: 60 },
-    { id: "experience", name: "Experience", icon: "🎯", x: 180, y: 180 },
-    { id: "terminal", name: "Terminal", icon: "🖥️", x: 180, y: 300 },
+    { id: "terminal", name: "Terminal", icon: "🖥️", x: 180, y: 180 },
   ]
 
   const openWindow = (app) => {
