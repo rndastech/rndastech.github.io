@@ -722,6 +722,12 @@
   background: #999;
 }
 
+.submit-btn.disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .spinner {
   width: 16px;
   height: 16px;
@@ -729,6 +735,20 @@
   border-top: 2px solid white;
   border-radius: 50%;
   animation: spin 1s linear infinite;
+}
+
+/* Turnstile Widget Styles */
+.turnstile-widget {
+  margin: 8px 0;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.form-help-text {
+  font-size: 14px;
+  color: #666;
+  margin: 4px 0 0 0;
+  font-style: italic;
 }
 
 @keyframes spin {

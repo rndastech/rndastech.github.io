@@ -1,9 +1,12 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import emailjs from '@emailjs/browser'
+import { renderTurnstile, resetTurnstile, verifyTurnstileToken } from '../../utils/turnstileUtils'
 import './AppStyles.css'
 
 const Contact = () => {
   const form = useRef()
+  const turnstileRef = useRef()
+  const isInitialized = useRef(false)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -13,11 +16,65 @@ const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
+  const [turnstileToken, setTurnstileToken] = useState(null)
+  const [turnstileWidgetId, setTurnstileWidgetId] = useState(null)
 
   // Initialize EmailJS - these values come from your EmailJS account
   const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'YOUR_SERVICE_ID'
   const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID'
   const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'YOUR_PUBLIC_KEY'
+
+  // Initialize Turnstile widget
+  useEffect(() => {
+    let widgetId = null
+    let cleanupFunction = null
+
+    const initTurnstile = () => {
+      if (window.turnstile && turnstileRef.current && !isInitialized.current) {
+        // Clear any existing content in the container
+        turnstileRef.current.innerHTML = ''
+        
+        widgetId = renderTurnstile(
+          turnstileRef.current,
+          setTurnstileToken,
+          'light'
+        )
+        if (widgetId) {
+          setTurnstileWidgetId(widgetId)
+          isInitialized.current = true
+        }
+      }
+    }
+
+    if (window.turnstile) {
+      initTurnstile()
+    } else {
+      // Wait for the script to load
+      const script = document.querySelector('script[src*="turnstile"]')
+      if (script) {
+        script.addEventListener('load', initTurnstile)
+        cleanupFunction = () => script.removeEventListener('load', initTurnstile)
+      }
+    }
+
+    // Cleanup function
+    return () => {
+      if (cleanupFunction) {
+        cleanupFunction()
+      }
+      if (widgetId && window.turnstile) {
+        try {
+          window.turnstile.remove(widgetId)
+        } catch (error) {
+          console.warn('Failed to remove Turnstile widget:', error)
+        }
+      }
+      if (turnstileRef.current) {
+        turnstileRef.current.innerHTML = ''
+      }
+      isInitialized.current = false
+    }
+  }, [])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -41,7 +98,28 @@ const Contact = () => {
     setIsSubmitting(true)
     setError('')
 
+    // Check if Turnstile token is available
+    if (!turnstileToken) {
+      setError('Please complete the security verification (Turnstile) before submitting.')
+      setIsSubmitting(false)
+      return
+    }
+
     try {
+      // First verify the Turnstile token
+      const isTurnstileValid = await verifyTurnstileToken(turnstileToken)
+      
+      if (!isTurnstileValid) {
+        setError('Security verification failed. Please try again.')
+        // Reset Turnstile widget
+        if (turnstileWidgetId) {
+          resetTurnstile(turnstileWidgetId)
+          setTurnstileToken(null)
+        }
+        setIsSubmitting(false)
+        return
+      }
+
       // Send email using EmailJS
       const result = await emailjs.sendForm(
         EMAILJS_SERVICE_ID,
@@ -53,12 +131,24 @@ const Contact = () => {
       console.log('Email sent successfully:', result.text)
       setSubmitted(true)
       setFormData({ name: '', email: '', subject: '', message: '' })
+      setTurnstileToken(null)
+      
+      // Reset Turnstile widget
+      if (turnstileWidgetId) {
+        resetTurnstile(turnstileWidgetId)
+      }
       
       // Reset success message after 5 seconds
       setTimeout(() => setSubmitted(false), 5000)
     } catch (error) {
       console.error('Failed to send email:', error)
       setError('Failed to send message. Please try again or contact me directly at rndas2004@gmail.com')
+      
+      // Reset Turnstile widget on error
+      if (turnstileWidgetId) {
+        resetTurnstile(turnstileWidgetId)
+        setTurnstileToken(null)
+      }
     } finally {
       setIsSubmitting(false)
     }
@@ -194,10 +284,18 @@ const Contact = () => {
                 ></textarea>
               </div>
 
+              <div className="form-group">
+                <label htmlFor="turnstile">Security Verification *</label>
+                <div ref={turnstileRef} className="turnstile-widget" id="turnstile"></div>
+                <p className="form-help-text">
+                  Please complete the security verification to submit your message.
+                </p>
+              </div>
+
               <button 
                 type="submit" 
-                className={`submit-btn ${isSubmitting ? 'submitting' : ''}`}
-                disabled={isSubmitting}
+                className={`submit-btn ${isSubmitting ? 'submitting' : ''} ${!turnstileToken ? 'disabled' : ''}`}
+                disabled={isSubmitting || !turnstileToken}
               >
                 {isSubmitting ? (
                   <>
