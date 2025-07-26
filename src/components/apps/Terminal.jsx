@@ -188,7 +188,8 @@ const Terminal = () => {
         const easterEggTrigger = import.meta.env.VITE_EASTER_EGG_TRIGGER
         const fullArgs = args.join(' ')
         if (fullArgs === easterEggTrigger) {
-          return 'Congratulations! First Easter Egg Unlocked. Visit: http://riteshndas.me/Snake for a game.'
+          const egg1 = import.meta.env.VITE_EGG1
+          return `Congratulations! First Easter Egg Unlocked. Bonus: ${egg1}`
         } else {
           return fullArgs
         }
